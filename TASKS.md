@@ -56,7 +56,7 @@
 - 环境注记：本机 schannel TLS 栈故障（git/.NET/curl 直连 GitHub 失败）；仓库级已配置 `http.sslBackend=openssl` + `http(s).proxy=http://127.0.0.1:7890`（--local）。
 - 可见性：用户已在 GitHub 网页人工确认 **Private**。Git/GitHub 环节完成，无阻塞。
 
-## Phase 1：数据层（2026-08-19，实现完成待评审，分支 feat/phase-1-data-layer）
+## Phase 1：数据层（2026-08-19，✅ 已合入 main @ 444da29）
 
 | 任务 | 状态 | 验收结果 |
 | --- | --- | --- |
@@ -72,12 +72,12 @@
 | 离线测试套件 | ✅ 已完成 | **64 passed, 0 failed**（1.58s） |
 | AKShare 联网 smoke（可选） | ✅ 已完成 | **3 passed**（真实联网验证，默认排除） |
 | 隐私检查 | ✅ 已完成 | 无 .env/.venv/db/缓存/密钥/真实持仓代码/运行数据 |
-| README 更新（PowerShell 命令）+ 六文档更新 | 🔄 进行中 | 提交推送分支（不合并 main、不 force push） |
-| 生成 git archive 安全审查 ZIP | ⏳ 待办 | D:\A-Share-Review-Phase1-review.zip |
+| README 更新（PowerShell 命令）+ 六文档更新 | ✅ 已完成 | 已提交（5991842） |
+| 生成 git archive 安全审查 ZIP | ✅ 已完成 | D:\A-Share-Review-Phase1-review.zip |
 
-**Phase 1 验收结论（待用户确认）：** 离线测试 64/64 通过，AKShare smoke 3/3 通过；数据库初始化与迁移验证通过；隐私检查通过。
+**Phase 1 验收结论：✅ 通过（已合入 main）。** 离线测试 64/64 通过，AKShare smoke 3/3 通过；数据库初始化与迁移验证通过；隐私检查通过。
 
-## Phase 2A：FastAPI 最小骨架 + Fake 行情接口（2026-08-19，实现完成，分支 feat/phase-2a-api-skeleton）
+## Phase 2A：FastAPI 最小骨架 + Fake 行情接口（2026-08-19，✅ 已合入 main @ 444da29）
 
 | 任务 | 状态 | 验收结果 |
 | --- | --- | --- |
@@ -91,6 +91,8 @@
 | 完整测试回归 | ✅ 已完成 | **73 passed, 0 failed**（64 原有 + 9 新增；smoke 默认跳过） |
 | 不启动常驻服务、不访问网络、不写数据库 | ✅ 已完成 | 仅测试验证（TestClient） |
 
-**Phase 2A 结论：✅ 通过。** 当前只有 Fake 行情 API；没有接入真实行情；没有启动 APScheduler；没有进入前端开发；未合并 main、未 force push。
+**Phase 2A 结论：✅ 通过（已合入 main）。** 当前只有 Fake 行情 API；没有接入真实行情；没有启动 APScheduler；没有进入前端开发。
 
-## Phase 2B+（规划中，待评审后启动）
+**合入记录（2026-08-19）**：`git merge --ff-only feat/phase-2a-api-skeleton`（Fast-forward `98a267e..444da29`，含 Phase 1 `5991842`）→ `git push origin main`。未 force push；两个功能分支暂时保留。
+
+## Phase 2B+（规划中，待用户确认后启动）

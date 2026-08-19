@@ -3,7 +3,14 @@
 > 只记录实际发生的变更（不是计划）。格式：日期 | 变更 | 涉及文件/范围。
 > 最后更新：2026-08-19
 
-## 2026-08-19 — Phase 2A：FastAPI 最小骨架 + Fake 行情接口（分支 feat/phase-2a-api-skeleton，未合并）
+## 2026-08-19 — Phase 1 + Phase 2A 合入 main
+
+### 变更（Git 操作，无代码变更）
+- `git switch main` → `git pull --ff-only origin main`（Already up to date）→ `git merge --ff-only feat/phase-2a-api-skeleton`（**Fast-forward `98a267e..444da29`**，54 文件 +3360/−52，同时带入 Phase 1 `5991842` 与 Phase 2A `444da29`）→ `git push origin main`（`98a267e..444da29`）
+- 远程 main 现为 `444da29`；未 force push；两个功能分支（`feat/phase-1-data-layer`、`feat/phase-2a-api-skeleton`）暂时保留
+- 文档更新：PROJECT_STATE.md、TASKS.md、CHANGELOG.md（本文件）、HANDOFF.md
+
+## 2026-08-19 — Phase 2A：FastAPI 最小骨架 + Fake 行情接口（分支 feat/phase-2a-api-skeleton）
 
 ### 新增
 - `apps/api/src/ashare_review/api/`：`__init__.py`、`app.py`（create_app + 模块级 app）、`routes/__init__.py`、`routes/health.py`、`routes/market.py`
