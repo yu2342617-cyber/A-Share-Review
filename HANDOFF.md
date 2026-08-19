@@ -1,46 +1,49 @@
 # HANDOFF.md — 交接说明
 
 > 每轮工作结束必须更新：修改文件、运行命令、测试结果、已知问题、环境要求、下一位 AI 的明确起点。
-> 最后更新：2026-08-19（Git/GitHub 首次提交准备，阻塞于 Git 身份缺失）
+> 最后更新：2026-08-19（Git 首次提交完成；GitHub 推送阻塞于 gh CLI 缺失）
 
 ## 本轮修改的文件
 
-**修改（3 个，仅状态记录，无项目内容变更）**
-- `PROJECT_STATE.md` — 记录"进行中：Git 提交阻塞于身份缺失"与解除方式
-- `TASKS.md` — 新增"Git 首次提交与 GitHub 推送"任务表（身份检查 ❌ 阻塞）
-- `CHANGELOG.md` — 追加本轮检查记录
+**修改（3 个，状态记录）**
+- `PROJECT_STATE.md` — 进行中/下一步更新为"commit 已完成，推送阻塞于 gh 缺失"
+- `TASKS.md` — Git/GitHub 任务表更新（commit ✅、branch ✅、gh ❌ 阻塞）
+- `CHANGELOG.md` — 追加本轮记录
 
-## 运行过的命令
+**无项目内容文件变更**（本轮只做 Git 操作）。
+
+## 运行过的命令与结果
 
 | 命令 | 结果 |
 | --- | --- |
-| `Get-Location` | D:\A-Share-Review |
-| `git status --short` | 31 个预期候选文件，无私有内容 |
-| `git status --ignored --short` | 仅 `!! data/private/README.md` 等私有内容被忽略 |
-| `git ls-files --others --exclude-standard` | 31 个候选文件；data/private 下仅 .gitkeep |
-| `git check-ignore`（.env/db/cache/logs/券商文件/运行数据） | 全部 IGNORED |
-| `git config --local user.name` / `user.email` | **均缺失** → 阻塞 |
+| `git config --local user.name "uwang"` / `user.email "yu2342617@gmail.com"` | 成功（用户提供，仅仓库级） |
+| `git add .` + 暂存区核对 | 31 文件暂存，PASS 无私有/敏感文件 |
+| `git commit -m "chore: initialize A-Share-Review phase 0"` | ✅ `9ca8648`（root-commit，31 文件，828 行） |
+| `git branch -M main` | ✅ 当前分支 main |
+| `git status` | ✅ working tree clean |
+| `gh --version` | ❌ **gh 不存在**（未擅自安装） |
 
 ## 测试结果
 
-- 未安装依赖、未运行代码；静态核对全部通过（隐私清单、.gitkeep、忽略规则）。
+- 未安装依赖、未运行代码；静态核对全部通过（暂存区隐私核对、提交后工作树干净）。
 
 ## 已知问题
 
-1. **仓库级 Git 身份缺失**（user.name / user.email 均为空）——阻塞首次 commit 与推送。用户已选择自行配置（未提供姓名/邮箱给我，邮箱回答与姓名回答矛盾，按更保守的"跳过"处理）。解除方式：在仓库内执行 `git config --local user.name "姓名"`、`git config --local user.email "邮箱"`（不得修改全局配置、不得使用虚假身份）。
-2. gh（GitHub CLI）尚未检查（步骤 7+ 在身份解除并 commit 后才执行）。
-3. 其余同上一轮：data/private 内容不入库（有意设计）；data/imports/* 忽略导入区；用户真实持仓尚未录入；密钥字段均为空占位符。
+1. **gh CLI 未安装**——阻塞 GitHub 认证、建仓与推送。规则：不擅自安装。解除方式：① 用户自行安装 gh（如 `winget install GitHub.cli`）；② 或用户在 GitHub 网页手动创建空的 **Private** 仓库，把 HTTPS 地址提供给我（或自行执行 `git remote add origin <url>` + `git push -u origin main`）。
+2. 本地 global 配置为 `yuwang <953769812@example.com>`（用户既有配置，本轮只读未改）；本仓库 commit 使用用户提供的 `uwang <yu2342617@gmail.com>`（--local）。
+3. data/private 内容不入库（有意设计，仅 .gitkeep 已提交）；data/imports/* 忽略导入区；真实持仓尚未录入；密钥字段均为空占位符。
 
 ## 环境要求
 
-- 本机：Windows（PowerShell），已安装 TradingView 与通达信，但**未获账户/本地文件/软件数据访问权限**。
-- 当前项目零依赖；Phase 1 起需要：Python 3.11+、Node.js（前端阶段）。
-- GitHub：用户已在浏览器登录 GitHub；gh CLI 认证状态待后续步骤确认。
+- 本机：Windows（PowerShell），未安装 gh CLI；已安装 TradingView 与通达信（无访问权限假设）。
+- 项目零依赖；Phase 1 起需要 Python 3.11+、Node.js。
+- GitHub：用户已在浏览器登录 GitHub 账号，待 gh 认证或手动建仓。
 
 ## 下一位 AI 的明确起点
 
 1. **先阅读**：AGENTS.md → MASTER_PLAN.md → PROJECT_STATE.md → DECISIONS.md → TASKS.md → HANDOFF.md（本文件）。
-2. **先解除身份阻塞**：向用户确认其姓名与邮箱，或请用户自行执行 `git config --local user.name/user.email`；未解除前不得 commit。
-3. 身份解除后继续：`git add .` → `git commit -m "chore: initialize A-Share-Review phase 0"` → `git branch -M main` → 检查 `gh --version` / `gh auth status` →（未认证则 `gh auth login --web`，等待用户在浏览器完成，不读取/保存/输出密码、Token、验证码、Cookie）→ 检查账号下是否已有 A-Share-Review 仓库 → 不存在则 `gh repo create A-Share-Review --private --source=. --remote=origin --push`；已存在则确认 Private、核对 remote、按规则添加 origin 后 `git push -u origin main`（origin 地址不一致时停止报告，不得覆盖）。
-4. 推送完成后按原步骤 11-12 复核并输出（仓库可见性 Private、默认分支 main、无隐私文件泄露、HTTPS 地址、commit hash、remote -v、git status）。
-5. **不得进入 Phase 1**、不得安装依赖、不得修改全局 Git 配置。
+2. **先解除 gh 阻塞**（用户安装 gh 或提供手动创建的 Private 仓库 HTTPS 地址），再继续：
+   - 若用户提供仓库地址：`git remote add origin <url>` → `git remote -v` 核对 → `git push -u origin main`（origin 已存在且地址不一致时停止报告，不得覆盖）。
+   - 若用户安装 gh：`gh auth status`（未认证则 `gh auth login --web --git-protocol https`，等待用户在浏览器完成授权；**不得询问、读取、保存或输出密码、Token、验证码与浏览器 Cookie**）→ 确认认证 → `gh repo view A-Share-Review` 检查是否已存在 → 不存在则 `gh repo create A-Share-Review --private --source=. --remote=origin --push`；已存在则确认 Private、核对 remote 后推送。
+3. 推送后复核：仓库可见性 Private、默认分支 main、.env 未提交、data/private 仅 .gitkeep、无真实持仓/券商文件/数据库/缓存/日志/非空密钥；输出仓库 HTTPS 地址、commit hash、`git remote -v`、`git status`、隐私检查结论。
+4. **不得进入 Phase 1**、不得安装项目依赖、不得修改全局 Git 配置。

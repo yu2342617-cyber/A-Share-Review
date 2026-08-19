@@ -33,14 +33,14 @@
 
 ## 进行中
 
-- **Git 首次提交与 GitHub 推送：阻塞于仓库级 Git 身份缺失。**
-  - 已完成：待提交清单隐私核对（PASS）、.gitkeep 可提交性核对（18 个）、工作目录确认。
-  - 阻塞原因：`git config --local user.name` / `user.email` 均为空；用户选择自行配置身份（不修改全局配置、不使用虚假身份）。
-  - 解除方式：用户在本仓库执行 `git config --local user.name "姓名"` 与 `git config --local user.email "邮箱"`（或提供给我代为设置）后，即可继续首次 commit、创建 GitHub 私有仓库并推送。
+- **Git 首次提交已完成；GitHub 推送阻塞于 gh CLI 缺失。**
+  - 已完成：仓库级 Git 身份已设置（用户提供：uwang / yu2342617@gmail.com，仅 --local）；首次 commit `9ca8648` 已创建（31 文件，828 行）；分支已改名为 `main`。
+  - 阻塞原因：`gh`（GitHub CLI）未安装；按规则不得擅自安装。
+  - 解除方式（二选一）：① 用户自行安装 gh CLI 后继续 `gh auth login --web` → 建仓推送；② 用户在 GitHub 网页手动创建空的 Private 仓库后，提供仓库 HTTPS 地址，由我添加 origin 并 `git push -u origin main`（或用户自行执行）。
 
 ## 下一步（等待用户确认后执行）
 
-1. **解除 Git 身份阻塞**：用户设置仓库级 user.name / user.email（或提供给我）后，继续 Git/GitHub 首次提交。
+1. **解除推送阻塞**：用户安装 gh CLI（或手动创建 GitHub Private 仓库并提供 HTTPS 地址）后，继续认证、建仓/关联 origin 与推送。
 2. **Phase 1（数据层）**：SQLite schema 设计、数据源适配层骨架（AKShare 优先）、数据质量测试（tests/data/）。
 3. 用户将在本地私有数据中录入真实持仓（私有数据通用格式见 docs/private-data-format.md；待录入清单见 data/private/README.md，该目录 gitignore、不入库）。
 4. 用户确认后更新本文件与 MASTER_PLAN.md 的 Phase 1 规划。

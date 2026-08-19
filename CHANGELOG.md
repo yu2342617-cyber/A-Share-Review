@@ -3,6 +3,17 @@
 > 只记录实际发生的变更（不是计划）。格式：日期 | 变更 | 涉及文件/范围。
 > 最后更新：2026-08-19
 
+## 2026-08-19 — Git 首次提交完成（GitHub 推送阻塞于 gh CLI 缺失）
+
+### 变更
+- 仓库级 Git 身份设置（用户提供，仅 --local）：`user.name=uwang`、`user.email=yu2342617@gmail.com`（global 配置未改动）
+- 首次提交：`9ca8648 chore: initialize A-Share-Review phase 0`（31 文件，828 行）
+- 分支改名为 `main`
+- 检查 `gh --version`：**gh 未安装** → 按规则不擅自安装，推送步骤暂停，等待用户安装 gh 或手动创建 Private 仓库
+
+### 说明
+- 未进入 Phase 1，未安装项目依赖，未修改全局 Git 配置。
+
 ## 2026-08-19 — Git/GitHub 首次提交准备（未提交，阻塞于身份缺失）
 
 ### 检查（无文件内容变更）

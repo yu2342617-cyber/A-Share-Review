@@ -35,19 +35,22 @@
 
 **Phase 0（含修正）验收结论：✅ 通过。** 未安装依赖，未生成业务实现代码，未执行 git commit。
 
-## Git 首次提交与 GitHub 推送（2026-08-19，进行中）
+## Git 首次提交与 GitHub 推送（2026-08-19）
 
 | 任务 | 状态 | 验收结果 |
 | --- | --- | --- |
 | 工作目录确认 | ✅ 已完成 | D:\A-Share-Review |
-| git status --short / --ignored 检查 | ✅ 已完成 | 仅 31 个预期候选文件；被忽略项仅 data/private/README.md 等私有内容 |
+| git status --short / --ignored 检查 | ✅ 已完成 | 仅 31 个预期候选文件；私有内容全部被忽略 |
 | 待提交清单隐私核对（.env/数据库/缓存/日志/券商文件/运行数据/真实持仓） | ✅ 已完成 | 全部被忽略，候选无私有内容 |
 | .gitkeep 可提交性 | ✅ 已完成 | 18 个 .gitkeep 全部可提交 |
-| 仓库级 Git 身份检查 | ❌ 阻塞 | user.name 与 user.email 均缺失；用户选择自行配置（不修改全局配置、不使用虚假身份） |
-| git add / commit / branch -M main | ⏳ 待办 | 身份解除后执行 |
-| gh 检查 / 认证 / 建仓 / 推送 | ⏳ 待办 | 身份解除并 commit 后执行 |
+| 仓库级 Git 身份设置 | ✅ 已完成 | 用户提供 uwang / yu2342617@gmail.com，写入 --local（未改 global） |
+| git add . 与暂存区核对 | ✅ 已完成 | 31 文件暂存，PASS 无私有/敏感文件 |
+| git commit | ✅ 已完成 | `9ca8648 chore: initialize A-Share-Review phase 0`（31 文件，828 行） |
+| git branch -M main | ✅ 已完成 | 当前分支 main |
+| gh CLI 检查 | ❌ 阻塞 | `gh` 未安装；按规则不擅自安装 |
+| gh 认证 / 建仓 / 推送 | ⏳ 待办 | 用户安装 gh 或手动创建 Private 仓库后继续 |
 
-**阻塞说明**：解除方式为在仓库内设置 `git config --local user.name` 与 `user.email`（由用户自行设置或提供给我设置）。
+**阻塞说明**：解除方式——① 用户安装 gh CLI（`winget install GitHub.cli` 等）后继续；② 用户手动创建空的 GitHub Private 仓库并提供 HTTPS 地址，我添加 origin 后 `git push -u origin main`。
 
 ## Phase 1+（规划中，待用户确认后启动）
 
