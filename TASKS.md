@@ -50,11 +50,11 @@
 | gh CLI 检查 | ❌ 阻塞（改用方案A） | `gh` 未安装；用户改为手动建仓，走方案A推送 |
 | 添加 origin 并推送 | ✅ 已完成 | origin=https://github.com/yu2342617-cyber/A-Share-Review.git；`git push -u origin main` 成功（GCM 授权后） |
 | 推送后复核（远程 main、内容一致性） | ✅ 已完成 | 远程默认分支 main；远程 main = d35d122 = 本地 HEAD；已推送内容隐私核对 PASS |
-| 仓库可见性为 Private | ❌ 待用户修正 | **当前为 Public**（未认证 ls-remote 可读）；需用户在 GitHub 网页改为 Private 后复验 |
+| 仓库可见性为 Private | ✅ 已完成 | **用户已在 GitHub 网页人工确认 Private**（按用户指示，不再用 gh/未认证探测复验） |
 
-**阻塞说明**：
+**说明**：
 - 环境注记：本机 schannel TLS 栈故障（git/.NET/curl 直连 GitHub 失败）；仓库级已配置 `http.sslBackend=openssl` + `http(s).proxy=http://127.0.0.1:7890`（--local）。
-- 可见性修正：GitHub 网页 → 仓库 Settings → General → Danger Zone → Change repository visibility → Make private。
+- 可见性：用户已在 GitHub 网页人工确认 **Private**。Git/GitHub 环节完成，无阻塞。
 
 ## Phase 1+（规划中，待用户确认后启动）
 

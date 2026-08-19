@@ -33,17 +33,15 @@
 
 ## 进行中
 
-- **Git 首次推送已完成；仓库可见性待用户修正。**
-  - 已完成：推送成功（`origin/main` = `d35d122`）；远程默认分支为 `main`；已推送内容隐私核对通过。
-  - 阻塞/待办：经未认证访问复测，仓库当前为 **Public**（与要求的 Private 不符）。需用户登录 GitHub 网页将其改为 Private（Settings → General → Danger Zone → Change repository visibility → Make private），改后我再复验。
+- **无。** Phase 0（含 Git/GitHub 收尾）全部完成，等待用户确认后进入 Phase 1。
+  - Git/GitHub 收尾：首次提交 `9ca8648` 与后续交接文档提交均已推送至 `origin/main`；远程默认分支 `main`；**用户已在 GitHub 网页人工确认仓库可见性为 Private**（按用户指示，不再用 gh/未认证探测复验）。
   - 环境注记：本机 schannel TLS 栈故障导致 git/.NET/curl 直连 GitHub 失败；已在本仓库设置 `http.sslBackend=openssl` 与 `http(s).proxy=http://127.0.0.1:7890`（仓库级 --local）后推送成功。
 
 ## 下一步（等待用户确认后执行）
 
-1. **修正仓库可见性为 Private**（用户网页操作），随后我复验；之后 Phase 0 的 Git/GitHub 环节即全部完成。
-2. **Phase 1（数据层）**：SQLite schema 设计、数据源适配层骨架（AKShare 优先）、数据质量测试（tests/data/）。
-3. 用户将在本地私有数据中录入真实持仓（私有数据通用格式见 docs/private-data-format.md；待录入清单见 data/private/README.md，该目录 gitignore、不入库）。
-4. 用户确认后更新本文件与 MASTER_PLAN.md 的 Phase 1 规划。
+1. **Phase 1（数据层）**：SQLite schema 设计、数据源适配层骨架（AKShare 优先）、数据质量测试（tests/data/）。
+2. 用户将在本地私有数据中录入真实持仓（私有数据通用格式见 docs/private-data-format.md；待录入清单见 data/private/README.md，该目录 gitignore、不入库）。
+3. 用户确认后更新本文件与 MASTER_PLAN.md 的 Phase 1 规划。
 
 ## 已验证命令
 

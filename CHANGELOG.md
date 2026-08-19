@@ -3,6 +3,15 @@
 > 只记录实际发生的变更（不是计划）。格式：日期 | 变更 | 涉及文件/范围。
 > 最后更新：2026-08-19
 
+## 2026-08-19 — 收尾：用户网页确认仓库 Private
+
+### 变更
+- PROJECT_STATE.md / TASKS.md / HANDOFF.md：可见性状态改为「用户已在 GitHub 网页人工确认 Private」，Git/GitHub 环节标记完成
+- 提交 `docs: confirm private GitHub repository` 并推送
+
+### 说明
+- 未进入 Phase 1；未安装依赖；未修改代理、证书或全局 Git 配置；未使用 gh CLI。
+
 ## 2026-08-19 — GitHub 首次推送完成（可见性待修正为 Private）
 
 ### 变更
