@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ashare-review-api"
+version = "0.1.0"
+description = "A-Share-Review data layer: SQLite schema, data source adapters, data quality (Phase 1)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+dependencies = [
+    "SQLAlchemy>=2.0,<3",
+    "alembic>=1.13,<2",
+    "pydantic>=2.5,<3",
+]
+
+[project.optional-dependencies]
+akshare = ["akshare>=1.14"]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+ashare-db-init = "ashare_review.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-m 'not smoke' -q"
+markers = [
+    "smoke: optional network-dependent AKShare smoke tests (excluded by default)",
+]

@@ -66,7 +66,52 @@
 - **理由**：降低使用门槛，用户当前没有脱敏后的券商交割单。
 - **状态**：✅ 已采纳
 
+## D-010 金额精度方案（Decimal/NUMERIC）
+
+- **日期**：2026-08-19
+- **决策**：涉及价格、成本、费用的字段使用 `NUMERIC(18,6)` 存储，数量使用 `NUMERIC(18,4)`；Python 侧一律 `decimal.Decimal` 计算，禁止用 float 参与金额/价格计算。展示精度按 instrument_trade_rules.price_precision 配置（A股 0.01，ETF 0.001 等）。
+- **理由**：float 二进制误差会污染成本、回测与做T计算；"数据准确性最高优先级"要求确定性的十进制运算。
+- **状态**：✅ 已采纳（Phase 1 落地，见 D-015 的 SQLite 实现说明）
+
+## D-011 时间处理统一方案
+
+- **日期**：2026-08-19
+- **决策**：数据库存储 **UTC（timezone-aware DateTime）**；`trade_date` 为对应市场本地交易日（date 类型，无时区歧义）；所有展示按 Asia/Shanghai 换算；禁止存储无时区含义的模糊时间（naive datetime）。
+- **理由**：跨市场（A股/港股）与定时任务需要统一时间基准；naive 时间会在夏令时/时区换算中产生歧义。
+- **状态**：✅ 已采纳（Phase 1 落地，timeutils 提供 to_utc / as_shanghai / market_date）
+
+## D-012 双源冲突阈值
+
+- **日期**：2026-08-19
+- **决策**：双源价格冲突判定默认：相对偏差 > 0.1%（0.001）**且**绝对差 > 0.0001 即判冲突：`|a-b| > max(abs_threshold, rel_threshold * max(|a|,|b|))`。阈值可在 config 中覆盖；测试覆盖临界值与临界外。
+- **理由**：收盘价双源校验需要可配置、可测试的确定性阈值；单一相对阈值对低价品种（如 ETF 0.3x 元）过松。
+- **状态**：✅ 已采纳（Phase 1 落地）
+
+## D-013 行情唯一性与词汇
+
+- **日期**：2026-08-19
+- **决策**：market_data_points 唯一约束 = (symbol, market, trade_date, quote_time, source, price_type, adjustment, is_delayed)；`price_type` 词汇：open/high/low/close/prev_close/last/volume/amount；`adjustment`：none/qfq/hfq；不同复权方式数据禁止混算。
+- **理由**：同一行情点重复抓取不应产生重复行；词汇受控避免脏数据。
+- **状态**：✅ 已采纳（Phase 1 落地）
+
+## D-014 适配器设计约束
+
+- **日期**：2026-08-19
+- **决策**：AKShare 适配器 lazy import（未安装时抛明确错误）；akshare 列为 optional extra（`[akshare]`）；上游字段缺失/改名必须抛 `AdapterFieldError`，禁止静默容忍；输出必须通过 Pydantic 模型校验；不写死 API Key/代理/Cookie。
+- **理由**：离线测试不依赖 akshare 安装；上游字段变化必须显式暴露，符合"字段变化测试"铁律。
+- **状态**：✅ 已采纳（Phase 1 落地）
+
+## D-015 SQLite 存储实现说明（ExactDecimal / UTCDateTime）
+
+- **日期**：2026-08-19
+- **决策**：SQLite 无原生 DECIMAL 且 `DateTime(timezone=True)` 不保留时区（实测读回 naive）。因此自定义两个类型装饰器（`ashare_review.db.types`）：
+  - `ExactDecimal(p, s)`：写入时 Decimal → 定长 scale 位小数字符串（如 `0.649000`）存 TEXT；读取时还原 Decimal。DDL 语义保持 `NUMERIC(p, s)`（非 SQLite 方言用真实 NUMERIC）。
+  - `UTCDateTime`：写入时 aware datetime → UTC ISO 字符串（带 `+00:00` 偏移）存 TEXT；读取时还原为 aware UTC datetime。naive 输入按 Asia/Shanghai 补时区（防御）。
+  - 两者直接覆写 `bind_processor`/`result_processor`，不依赖 TypeDecorator 默认 impl 处理器链（该链经 Numeric 的 DecimalResultProcessor 会丢尾零）。
+- **理由**：数据准确性最高优先级要求跨方言可移植的确定性格局；实测暴露的精度/时区丢失必须由类型层兜住。
+- **状态**：✅ 已采纳（Phase 1 落地，迁移 `d68db143309f`）
+
 ## 待决策（Phase 1 前需要）
 
-- 数据源启用顺序与默认主/备数据源（建议 AKShare 为主、Tushare 为备，待用户确认）。
-- SQLite schema 的具体表结构与字段类型（Phase 1 设计后在此登记）。
+- ~~数据源启用顺序与默认主/备数据源~~ → ✅ 已定：AKShare 为主（Phase 1 首个实现），Tushare 为备（后续 Phase 接入）。
+- ~~SQLite schema 的具体表结构与字段类型~~ → ✅ 已定：见 MASTER_PLAN.md §11.2/§11.3 与本文件 D-010~D-013。

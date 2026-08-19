@@ -70,6 +70,33 @@ D:\A-Share-Review\
 
 ## 当前状态
 
-- **Phase 0（项目规划与基础目录）已完成**（2026-08-19）。
-- 未安装任何依赖，未生成业务实现；等待用户确认后进入 Phase 1。
+- **Phase 1（数据层）实现完成**（2026-08-19，分支 `feat/phase-1-data-layer`，未合并）：SQLite schema（9 表）、统一行情模型、数据源适配器（Fake + AKShare）、数据质量校验、离线测试 64 项全过 + AKShare 联网 smoke 3 项通过。
+- 未安装前端/FastAPI/定时任务/LLM 依赖；等待 Phase 1 评审后进入 Phase 2。
 - 详见 [PROJECT_STATE.md](PROJECT_STATE.md)。
+
+## 数据层开发环境（Windows PowerShell）
+
+项目数据层位于 `apps/api`（Python 3.11+，包名 `ashare_review`，src 布局）。
+
+```powershell
+# 1) 创建虚拟环境（.venv 已被 gitignore）
+cd D:\A-Share-Review
+python -m venv .venv
+
+# 2) 安装依赖（sqlalchemy / alembic / pydantic / pytest / akshare 可选）
+#    本机因网络环境需要走代理，其他机器可去掉 --proxy
+.\.venv\Scripts\python.exe -m pip install -e "apps/api[akshare,dev]" --proxy http://127.0.0.1:7890
+
+# 3) 初始化数据库（Alembic 迁移；默认写 storage/db/ashare_review.db，gitignore）
+.\.venv\Scripts\alembic.exe -c apps/api/alembic.ini upgrade head
+# 或快速建表：.\.venv\Scripts\ashare-db-init.exe --tables
+# 或一键脚本：powershell -ExecutionPolicy Bypass -File scripts\db-init.ps1 -Proxy http://127.0.0.1:7890
+
+# 4) 运行测试（默认离线，自动排除需要联网的 smoke 测试）
+.\.venv\Scripts\python.exe -m pytest apps/api -v
+# 可选：显式运行 AKShare 联网 smoke 测试
+.\.venv\Scripts\python.exe -m pytest apps/api -m smoke -v
+# 或一键脚本：powershell -ExecutionPolicy Bypass -File scripts\run-tests.ps1
+```
+
+> 迁移文件：`apps/api/alembic/versions/`；数据库结构设计见 MASTER_PLAN.md §11 与 DECISIONS.md D-010~D-014。

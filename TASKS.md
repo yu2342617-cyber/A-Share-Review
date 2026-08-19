@@ -56,15 +56,25 @@
 - 环境注记：本机 schannel TLS 栈故障（git/.NET/curl 直连 GitHub 失败）；仓库级已配置 `http.sslBackend=openssl` + `http(s).proxy=http://127.0.0.1:7890`（--local）。
 - 可见性：用户已在 GitHub 网页人工确认 **Private**。Git/GitHub 环节完成，无阻塞。
 
-## Phase 1+（规划中，待用户确认后启动）
+## Phase 1：数据层（2026-08-19，实现完成待评审，分支 feat/phase-1-data-layer）
 
-| 任务 | 状态 | 备注 |
+| 任务 | 状态 | 验收结果 |
 | --- | --- | --- |
-| SQLite schema 设计（行情、持仓、交易、公司档案、事件） | ⏳ 待办 | 设计后登记 DECISIONS.md |
-| 数据源适配层骨架（AKShare 优先） | ⏳ 待办 | 统一接口 + 双源校验 |
-| 数据质量测试（延迟、空值、字段变化、来源冲突） | ⏳ 待办 | tests/data/，项目硬门槛 |
-| 用户录入私有持仓（清单见 data/private/README.md，格式见 docs/private-data-format.md，均不入库） | ⏳ 待办 | 用户操作，清单仅存于 gitignore 的 data/private/ |
-| Phase 2：FastAPI 基础 API + APScheduler | ⏳ 待办 | 待 Phase 1 验收 |
-| Phase 3：前端骨架（Vite + React + ECharts） | ⏳ 待办 | 待确认 |
-| Phase 4：六大核心模块逐个落地 | ⏳ 待办 | 待确认 |
-| Phase 5：预警/计划、导入导出闭环、全面测试 | ⏳ 待办 | 待确认 |
+| 设计登记（MASTER_PLAN §11、DECISIONS D-010~D-015） | ✅ 已完成 | 精度/时间/阈值/唯一约束/适配器约束/SQLite 实现说明 |
+| 工程骨架：apps/api（pyproject、src 布局、.venv、依赖安装） | ✅ 已完成 | sqlalchemy 2.0.52 / alembic 1.19.1 / pydantic 2.13.4 / pytest 9.1.1 / akshare 1.18.92 |
+| SQLAlchemy 2.x 模型（9 张业务表） | ✅ 已完成 | 唯一约束、索引、ExactDecimal/UTCDateTime；迁移 d68db143309f 建 10 表 |
+| timeutils（UTC 存储 + Asia/Shanghai 展示 + market_date） | ✅ 已完成 | naive 时间在 Pydantic 层拒绝（测试覆盖） |
+| 数据源适配器：接口 + Fake（离线确定性） | ✅ 已完成 | meta/fetch_quote/fetch_daily_history；Pydantic 校验 |
+| AKShare 适配器最小实现 | ✅ 已完成 | A股股票/ETF 日线；lazy import；字段缺失/改名抛 AdapterFieldError；保存 raw+normalized |
+| 数据质量服务（9 项检查 + 阈值可配置） | ✅ 已完成 | 双源冲突默认 rel 0.001/abs 0.0001，临界值测试覆盖 |
+| repositories（行情读写、问题记录） | ✅ 已完成 | 正常写入/重复约束/查询过滤测试通过 |
+| Alembic（ini/env/初始迁移） | ✅ 已完成 | upgrade head / downgrade base / 再 upgrade 往返通过 |
+| 离线测试套件 | ✅ 已完成 | **64 passed, 0 failed**（1.58s） |
+| AKShare 联网 smoke（可选） | ✅ 已完成 | **3 passed**（真实联网验证，默认排除） |
+| 隐私检查 | ✅ 已完成 | 无 .env/.venv/db/缓存/密钥/真实持仓代码/运行数据 |
+| README 更新（PowerShell 命令）+ 六文档更新 | 🔄 进行中 | 提交推送分支（不合并 main、不 force push） |
+| 生成 git archive 安全审查 ZIP | ⏳ 待办 | D:\A-Share-Review-Phase1-review.zip |
+
+**Phase 1 验收结论（待用户确认）：** 离线测试 64/64 通过，AKShare smoke 3/3 通过；数据库初始化与迁移验证通过；隐私检查通过。
+
+## Phase 2+（规划中，待 Phase 1 评审后启动）

@@ -3,6 +3,29 @@
 > 只记录实际发生的变更（不是计划）。格式：日期 | 变更 | 涉及文件/范围。
 > 最后更新：2026-08-19
 
+## 2026-08-19 — Phase 1：数据层（分支 feat/phase-1-data-layer，未合并）
+
+### 新增
+- `apps/api/` 数据层工程：pyproject.toml（src 布局，包 `ashare_review`）、alembic.ini、alembic/（env.py、script.py.mako、初始迁移 `d68db143309f`）
+- `src/ashare_review/`：config.py、constants.py、cli.py（ashare-db-init）
+  - db/：base、session、timeutils（UTC/Asia-Shanghai）、types（ExactDecimal / UTCDateTime）
+  - models/：9 张业务表（instruments、instrument_trade_rules、market_data_points、source_fetch_runs、data_quality_issues、positions、trades、companies、events）
+  - adapters/：DataSourceAdapter 接口（Pydantic 校验）+ FakeDataSourceAdapter + AKShareDataSourceAdapter（lazy import、字段变化报错）
+  - quality/：QualityService（9 项检查、双源阈值可配置、manual_verified 优先、stale/missing 判定）
+  - repositories/：MarketDataRepository、QualityRepository
+- `apps/api/tests/`：14 个测试文件（模型/精度/迁移/仓库/质量/适配器/时间/smoke）
+- `scripts/db-init.ps1`、`scripts/run-tests.ps1`
+- README.md「数据层开发环境（Windows PowerShell）」章节
+
+### 变更
+- MASTER_PLAN.md §11（Phase 1 数据层设计）；DECISIONS.md D-010~D-015；PROJECT_STATE.md、TASKS.md、CHANGELOG.md（本文件）
+
+### 测试
+- 离线：64 passed, 0 failed（1.58s）；AKShare 联网 smoke：3 passed（可选，默认排除）
+
+### 说明
+- 未进入 Phase 2；未安装 FastAPI/前端/Docker/LLM 依赖；未合并 main、未 force push；数据库/缓存/日志/.venv 均未入库。
+
 ## 2026-08-19 — 收尾：用户网页确认仓库 Private
 
 ### 变更

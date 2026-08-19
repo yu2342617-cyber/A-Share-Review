@@ -5,7 +5,7 @@
 
 ## 当前阶段
 
-**Phase 0：项目规划与基础目录（含 Phase 0 修正）—— 已完成，等待用户确认后进入 Phase 1。**
+**Phase 1：数据层 —— 实现完成，等待评审确认（2026-08-19）。** 分支 `feat/phase-1-data-layer`，未合并 main。
 
 ## 已完成
 
@@ -33,15 +33,27 @@
 
 ## 进行中
 
-- **无。** Phase 0（含 Git/GitHub 收尾）全部完成，等待用户确认后进入 Phase 1。
-  - Git/GitHub 收尾：首次提交 `9ca8648` 与后续交接文档提交均已推送至 `origin/main`；远程默认分支 `main`；**用户已在 GitHub 网页人工确认仓库可见性为 Private**（按用户指示，不再用 gh/未认证探测复验）。
-  - 环境注记：本机 schannel TLS 栈故障导致 git/.NET/curl 直连 GitHub 失败；已在本仓库设置 `http.sslBackend=openssl` 与 `http(s).proxy=http://127.0.0.1:7890`（仓库级 --local）后推送成功。
+- **Phase 1 收尾**：实现与测试全部完成（见下），等待评审确认后合入 main（用户指示：本轮不合并、不 force push）。
+  - 测试：**64 passed, 0 failed**（离线）+ **3/3 smoke 通过**（AKShare 真实联网验证）。
+  - 剩余动作：提交推送分支（`feat: establish phase 1 data layer`）、生成安全审查 ZIP（`D:\A-Share-Review-Phase1-review.zip`）。
+
+## Phase 1 完成清单（2026-08-19）
+
+- [x] SQLite schema（SQLAlchemy 2.x）：9 张业务表 + 唯一约束/索引；Alembic 初始迁移 `d68db143309f`
+- [x] 统一行情模型：market_data_points 11 字段 + quality_status
+- [x] 数据源适配器：DataSourceAdapter 接口（meta/fetch_quote/fetch_daily_history）+ Fake（离线确定性）+ AKShare（A股股票/ETF 日线，lazy import，字段变化抛 AdapterFieldError）
+- [x] 数据质量服务：9 项检查 + 双源阈值可配置（默认 rel 0.001 / abs 0.0001）+ manual_verified 优先 + stale/missing 判定
+- [x] Decimal/NUMERIC 精度与 UTC 时间（ExactDecimal / UTCDateTime，DECISIONS D-010/D-011/D-015）
+- [x] 离线测试套件（64 项）+ AKShare 联网 smoke（3 项，默认排除）
+- [x] 数据库初始化命令（alembic upgrade head / ashare-db-init）+ scripts/db-init.ps1、run-tests.ps1
+- [x] 隐私检查：无 .env/.venv/db/缓存/密钥/真实持仓代码/运行数据入库
 
 ## 下一步（等待用户确认后执行）
 
-1. **Phase 1（数据层）**：SQLite schema 设计、数据源适配层骨架（AKShare 优先）、数据质量测试（tests/data/）。
-2. 用户将在本地私有数据中录入真实持仓（私有数据通用格式见 docs/private-data-format.md；待录入清单见 data/private/README.md，该目录 gitignore、不入库）。
-3. 用户确认后更新本文件与 MASTER_PLAN.md 的 Phase 1 规划。
+1. **Phase 1 评审**：确认测试结果与安全审查 ZIP 后，由用户决定是否将 `feat/phase-1-data-layer` 合入 main。
+2. **Phase 2（后端 API）**：FastAPI 基础、行情/持仓接口、APScheduler 定时任务。
+3. 用户将在本地私有数据中录入真实持仓（私有数据通用格式见 docs/private-data-format.md；待录入清单见 data/private/README.md，该目录 gitignore、不入库）。
+4. 用户确认后更新本文件与 MASTER_PLAN.md 的 Phase 2 规划。
 
 ## 已验证命令
 
@@ -52,9 +64,12 @@
 | 文件写入（UTF-8） | 全部成功，编码检查通过 |
 | `git check-ignore`（Phase 0 修正复查） | 私有数据/运行目录内容被忽略、.gitkeep 不被忽略，全部符合预期 |
 | 敏感信息搜索（Phase 0 修正） | 未发现非空密钥/密码/Token 内容 |
+| `.venv\Scripts\python -m pytest apps/api` | **64 passed, 0 failed**（1.58s，离线；smoke 默认排除） |
+| `.venv\Scripts\python -m pytest apps/api -m smoke` | **3 passed**（AKShare 真实联网验证通过） |
+| `alembic -c apps/api/alembic.ini upgrade head` | 成功，storage/db/ashare_review.db 建 10 表（9 业务表 + alembic_version） |
 
 ## 环境要求
 
-- 当前未安装任何依赖（Phase 0 明确不安装）。
-- 未来需要：Node.js（前端）、Python 3.11+（后端）、AKShare/Tushare（数据源，可选）。
-- 已安装但未获访问权限：TradingView、通达信（不得假设已获得账户、本地文件或软件数据访问权限）。
+- 数据层：Python 3.11.9（本机已有）+ `.venv`（项目根，gitignore）；依赖 sqlalchemy 2.0.52 / alembic 1.19.1 / pydantic 2.13.4 / pytest 9.1.1 / akshare 1.18.92（可选 extra）。
+- 网络注记：本机 GitHub/PyPI 直连不稳定，pip 安装需 `--proxy http://127.0.0.1:7890`（必要时加 `-i https://pypi.tuna.tsinghua.edu.cn/simple`）；git 已配 openssl 后端 + 代理（--local）。
+- 未获访问权限：TradingView、通达信（不得假设已获得账户、本地文件或软件数据访问权限）。

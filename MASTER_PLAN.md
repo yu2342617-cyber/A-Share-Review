@@ -163,10 +163,59 @@ interface DataSourceAdapter {
 | 阶段 | 内容 | 状态 |
 | --- | --- | --- |
 | Phase 0 | 项目规划与基础目录（本文档、AGENTS、交接制度、目录骨架） | ✅ 已完成（2026-08-19） |
-| Phase 1 | 数据层：SQLite schema、数据源适配层骨架（AKShare 优先）、数据质量测试 | ⏳ 待用户确认后启动 |
+| Phase 1 | 数据层：SQLite schema、数据源适配层骨架（AKShare 优先）、数据质量测试 | ✅ 实现完成（2026-08-19，待评审；分支 feat/phase-1-data-layer） |
 | Phase 2 | 后端 API：FastAPI 基础、行情/持仓接口、APScheduler 定时任务 | ⏳ 待启动 |
 | Phase 3 | 前端骨架：Vite + React + ECharts，行情看板 | ⏳ 待启动 |
 | Phase 4 | 模块功能逐个落地（复盘 / 持仓 / 做T / 跟踪 / 研判 / 回测） | ⏳ 待启动 |
 | Phase 5 | 预警与计划、导入导出闭环、全面测试与验收 | ⏳ 待启动 |
 
 > 每个 Phase 的验收：先更新本文档与 PROJECT_STATE.md，再实现；实现后更新 TASKS.md / CHANGELOG.md / HANDOFF.md。
+
+## 11. Phase 1 数据层设计（2026-08-19 登记）
+
+### 11.1 技术栈与工程结构
+
+- Python 3.11+；SQLAlchemy 2.x（Mapped/mapped_column 声明式）；Alembic 迁移；Pydantic 2.x 适配器输出校验；pytest 测试。
+- 工程位于 `apps/api/`，src 布局：`apps/api/src/ashare_review/`，包名 `ashare_review`（editable 安装）。
+- 模块职责分离：`config`（配置）、`db`（engine/session/时间工具）、`models`（ORM）、`repositories`（数据访问）、`adapters`（数据源）、`quality`（质量服务）。
+- 本地虚拟环境 `.venv`（项目根，gitignore）；只装本轮必要依赖，不装 FastAPI/前端/Docker/LLM。
+
+### 11.2 数据库（SQLite，文件在 storage/db，gitignore）
+
+| 表 | 用途 | 关键点 |
+| --- | --- | --- |
+| instruments | 证券档案 | 代码/市场/名称/类型/币种/最小变动单位/交易状态；(symbol,market) 唯一 |
+| instrument_trade_rules | 交易制度 | T+0/T+1、最小交易单位、价格精度、市场规则；**ETF 按证券代码配置** |
+| market_data_points | 行情点 | 11 字段全量 + quality_status；唯一约束与索引见 §11.3 |
+| source_fetch_runs | 抓取任务 | 来源/起止/状态/记录数/错误摘要/数据日期 |
+| data_quality_issues | 质量问题 | 类型/严重度/来源/证券/交易日/证据/处理状态 |
+| positions | 持仓 | 只建结构，不导入真实持仓 |
+| trades | 交易 | 方向/数量/价格/费用/日期/结算规则 |
+| companies | 公司档案 | 基础结构 |
+| events | 事件 | 公告/新闻/政策/公司事件 + 来源与时间 |
+
+- 价格/成本/费用：`NUMERIC(18,6)`；数量：`NUMERIC(18,4)`；计算一律 `decimal.Decimal`，禁用 float（见 DECISIONS.md D-010）。
+- 时间：DB 存 **UTC（timezone-aware）**；`trade_date` 为市场本地交易日（date）；展示统一 Asia/Shanghai；禁止无时区含义的模糊时间（见 D-011）。
+
+### 11.3 market_data_points 约束
+
+- 唯一约束：(symbol, market, trade_date, quote_time, source, price_type, adjustment, is_delayed)。
+- 索引：(symbol, market, trade_date)、(trade_date, price_type)、(source, fetched_at)、(quality_status)。
+- `raw_value` 存原文（Text，可追溯）；`normalized_value` 存 NUMERIC 标准化值；`quality_status`：ok / suspect / conflict / missing。
+
+### 11.4 数据源适配层（接口与实现）
+
+- 接口 `DataSourceAdapter`（ABC）：`meta()`、`fetch_quote()`、`fetch_daily_history()`；输出经 Pydantic 模型校验（`QuoteTick`、`DailyBar`、`AdapterMeta`）。
+- `FakeDataSourceAdapter`：完全离线、确定性，供测试。
+- `AKShareDataSourceAdapter`：最小日线/收盘入口（A股 `stock_zh_a_hist`、ETF `fund_etf_hist_em`）；**lazy import** akshare（未安装时给出明确错误）；字段缺失/变化必须抛 `AdapterFieldError`；保存 raw 与 normalized；不使用搜索引擎摘要。
+- 双源冲突阈值：相对 0.1%（0.001）且绝对 0.0001，可配置（见 D-012）。
+
+### 11.5 数据质量服务（quality）
+
+9 项检查：必填字段、空值、非法价格/数量、trade_date↔quote_time 一致性、延迟标记、上游字段变化、双源冲突、manual_verified 优先（保留冲突证据不删除）、stale/missing 缓存判定（禁止用旧缓存冒充当天）。问题写入 `data_quality_issues`。
+
+### 11.6 测试策略（离线优先）
+
+- 普通测试全部离线：Fake 适配器 + 本地 fixture + 临时 SQLite（内存/临时文件）。
+- AKShare 联网测试标记 `smoke`，默认排除（`addopts = -m "not smoke"`）；网络失败不影响普通测试。
+- 覆盖：模型字段完整性、Decimal 精度、DB 初始化与迁移、正常写入、重复约束、空值、延迟、字段变化、双源一致/冲突（含阈值临界值）、manual_verified 优先、stale 判定、Fake 离线、AKShare fixture 映射。
