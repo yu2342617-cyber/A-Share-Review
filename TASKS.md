@@ -1,0 +1,63 @@
+# TASKS.md — 任务清单与验收
+
+> 每轮工作结束必须更新任务状态与验收结果。
+> 状态标记：⏳ 待办 / 🔄 进行中 / ✅ 已完成 / ❌ 阻塞
+> 最后更新：2026-08-19
+
+## Phase 0：项目规划与基础目录
+
+| 任务 | 状态 | 验收结果 |
+| --- | --- | --- |
+| 确认/切换工作目录为 D:\A-Share-Review | ✅ 已完成 | `Get-Location` 返回 D:\A-Share-Review |
+| 检查现有文件，保留用户已有内容 | ✅ 已完成 | 根目录初始为空，无用户文件需要保留 |
+| git init（不提交、不改全局配置） | ✅ 已完成 | 空仓库初始化成功，未执行 commit |
+| 创建根文件（README / MASTER_PLAN / AGENTS / PROJECT_STATE / DECISIONS / TASKS / CHANGELOG / HANDOFF / .env.example / .gitignore） | ✅ 已完成 | 10 个文件全部创建 |
+| 创建目录结构（apps / packages / config / data / docs / scripts / storage / tests） | ✅ 已完成 | 20 个目录全部创建 |
+| 空目录添加 .gitkeep | ✅ 已完成 | 空目录均有 .gitkeep（含 gitignore 目录在内，本地结构完整） |
+| MASTER_PLAN.md 写入技术方案 | ✅ 已完成 | 技术栈、适配层、核心模块、阶段规划齐全 |
+| AGENTS.md + data-quality.md 写入数据准确性铁律 | ✅ 已完成 | 7 条铁律 + 行情记录字段完整落盘 |
+| 隐私安全与 .gitignore 覆盖 | ✅ 已完成 | data/private、storage/db、storage/cache、storage/logs、.env、券商导出原件均被忽略，`git check-ignore` 验证通过 |
+| positions.example.csv（仅字段+虚拟示例） | ✅ 已完成 | 3 行虚拟示例（A股/ETF/港股各一），无真实持仓 |
+| data/private/README.md 私有说明（本地） | ✅ 已完成 | 待录入清单存于 gitignore 目录；通用格式移至 docs/private-data-format.md |
+| docs/private-data-format.md 通用格式文档 | ✅ 已完成 | 仅字段说明 + 虚拟示例，无真实持仓 |
+| Markdown 一致性 + UTF-8 检查 | ✅ 已完成 | 见下方检查项 |
+
+## Phase 0 修正（2026-08-19）
+
+| 任务 | 状态 | 验收结果 |
+| --- | --- | --- |
+| .gitignore：运行目录忽略内容、保留 .gitkeep（data/raw、data/processed、data/exports、data/private、storage/db、storage/cache、storage/logs） | ✅ 已完成 | `git check-ignore` 验证：普通文件被忽略、.gitkeep 不被忽略 |
+| 创建 data/private/.gitkeep | ✅ 已完成 | 文件已创建，允许提交 |
+| 通用格式整理到 docs/private-data-format.md | ✅ 已完成 | 仅字段 + 虚拟示例，无真实持仓 |
+| data/private/README.md 保留本地信息且继续被忽略 | ✅ 已完成 | `git check-ignore` 命中，未删除本地数据 |
+| 各文档引用统一指向 docs/private-data-format.md | ✅ 已完成 | README/MASTER_PLAN/PROJECT_STATE/TASKS/HANDOFF 一致 |
+| 敏感信息搜索（API Key/密码/Token） | ✅ 已完成 | 未发现非空密钥内容（详见 HANDOFF） |
+
+**Phase 0（含修正）验收结论：✅ 通过。** 未安装依赖，未生成业务实现代码，未执行 git commit。
+
+## Git 首次提交与 GitHub 推送（2026-08-19，进行中）
+
+| 任务 | 状态 | 验收结果 |
+| --- | --- | --- |
+| 工作目录确认 | ✅ 已完成 | D:\A-Share-Review |
+| git status --short / --ignored 检查 | ✅ 已完成 | 仅 31 个预期候选文件；被忽略项仅 data/private/README.md 等私有内容 |
+| 待提交清单隐私核对（.env/数据库/缓存/日志/券商文件/运行数据/真实持仓） | ✅ 已完成 | 全部被忽略，候选无私有内容 |
+| .gitkeep 可提交性 | ✅ 已完成 | 18 个 .gitkeep 全部可提交 |
+| 仓库级 Git 身份检查 | ❌ 阻塞 | user.name 与 user.email 均缺失；用户选择自行配置（不修改全局配置、不使用虚假身份） |
+| git add / commit / branch -M main | ⏳ 待办 | 身份解除后执行 |
+| gh 检查 / 认证 / 建仓 / 推送 | ⏳ 待办 | 身份解除并 commit 后执行 |
+
+**阻塞说明**：解除方式为在仓库内设置 `git config --local user.name` 与 `user.email`（由用户自行设置或提供给我设置）。
+
+## Phase 1+（规划中，待用户确认后启动）
+
+| 任务 | 状态 | 备注 |
+| --- | --- | --- |
+| SQLite schema 设计（行情、持仓、交易、公司档案、事件） | ⏳ 待办 | 设计后登记 DECISIONS.md |
+| 数据源适配层骨架（AKShare 优先） | ⏳ 待办 | 统一接口 + 双源校验 |
+| 数据质量测试（延迟、空值、字段变化、来源冲突） | ⏳ 待办 | tests/data/，项目硬门槛 |
+| 用户录入私有持仓（清单见 data/private/README.md，格式见 docs/private-data-format.md，均不入库） | ⏳ 待办 | 用户操作，清单仅存于 gitignore 的 data/private/ |
+| Phase 2：FastAPI 基础 API + APScheduler | ⏳ 待办 | 待 Phase 1 验收 |
+| Phase 3：前端骨架（Vite + React + ECharts） | ⏳ 待办 | 待确认 |
+| Phase 4：六大核心模块逐个落地 | ⏳ 待办 | 待确认 |
+| Phase 5：预警/计划、导入导出闭环、全面测试 | ⏳ 待办 | 待确认 |

@@ -1,0 +1,75 @@
+# A-Share-Review .gitignore
+# 隐私与安全：以下内容一律不得进入版本库
+# 详细规则见 AGENTS.md（第4节）与 MASTER_PLAN.md（第9节）
+
+# ---------- 环境与密钥 ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa
+id_ed25519
+
+# ---------- 私有数据（忽略内容，保留 .gitkeep） ----------
+data/private/*
+!data/private/.gitkeep
+
+# ---------- 券商导出原件 / 导入区（保留模板示例） ----------
+# 券商交割单、成交明细、对账单等原件落入 data/imports/ 后一律忽略
+data/imports/*
+!data/imports/positions.example.csv
+
+# ---------- 运行时数据目录（忽略实际内容，保留 .gitkeep） ----------
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/exports/*
+!data/exports/.gitkeep
+storage/db/*
+!storage/db/.gitkeep
+storage/cache/*
+!storage/cache/.gitkeep
+storage/logs/*
+!storage/logs/.gitkeep
+*.log
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.coverage.xml
+coverage.xml
+*.egg-info/
+dist/
+build/
+wheels/
+
+# ---------- Node / 前端 ----------
+node_modules/
+dist/
+build/
+.vite/
+coverage/
+*.tsbuildinfo
+*.local
+
+# ---------- 系统与编辑器 ----------
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+*.swp
+*.swo
+*~

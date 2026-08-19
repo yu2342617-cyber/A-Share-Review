@@ -1,0 +1,4 @@
+symbol,market,name,quantity,cost_price,currency,note
+000001.SZ,SZ,平安银行,100,10.500,CNY,虚拟示例-请删除后导入真实数据
+159915.SZ,SZ,创业板ETF,2000,1.850,CNY,虚拟示例-请删除后导入真实数据
+00700.HK,HK,腾讯控股,100,380.000,HKD,虚拟示例-请删除后导入真实数据
