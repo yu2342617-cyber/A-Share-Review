@@ -5,7 +5,7 @@
 
 ## 当前阶段
 
-**Phase 1：数据层 —— 实现完成，等待评审确认（2026-08-19）。** 分支 `feat/phase-1-data-layer`，未合并 main。
+**Phase 2A：FastAPI 最小骨架 + Fake 行情接口 —— 实现完成，等待评审（2026-08-19）。** 分支 `feat/phase-2a-api-skeleton`，未合并 main。
 
 ## 已完成
 
@@ -31,11 +31,23 @@
 - [x] README/MASTER_PLAN/TASKS/HANDOFF 等文档的格式引用统一指向 docs/private-data-format.md
 - [x] 复查：真实持仓代码未出现在任何可提交文件中
 
+## Phase 2A 完成清单（2026-08-19，分支 feat/phase-2a-api-skeleton）
+
+- [x] 依赖：pyproject 增加 fastapi / uvicorn（httpx 进 dev extra）；venv 内安装（fastapi 0.141.1 / uvicorn 0.52.4 / httpx 0.28.1）
+- [x] `api/app.py`：`create_app()` + 模块级 `app`；路由 health / market
+- [x] `GET /health` → `{"status":"ok","project":"A-Share-Review","phase":"2A"}`
+- [x] `GET /api/v1/market/meta` → FakeDataSourceAdapter.meta()（id=fake，明确合成数据）
+- [x] `GET /api/v1/market/quote?symbol=&market=` → Fake fetch_quote（Pydantic 结构化）
+- [x] `GET /api/v1/market/daily?symbol=&market=&start_date=&end_date=` → Fake fetch_daily_history；倒置日期 422、>366 天 422
+- [x] 接口测试 9 项（离线）；**73 passed, 0 failed**（64 原有 + 9 新增；smoke 默认跳过）
+- [x] 不启动常驻服务（仅测试验证）；不访问 AKShare/网络；不写数据库
+
+**当前明确状态**：只有 Fake 行情 API；没有接入真实行情；没有启动 APScheduler；没有进入前端开发；没有合并 main（Phase 1 分支 `feat/phase-1-data-layer` 亦未合并）。
+
 ## 进行中
 
-- **Phase 1 收尾**：实现与测试全部完成（见下），等待评审确认后合入 main（用户指示：本轮不合并、不 force push）。
-  - 测试：**64 passed, 0 failed**（离线）+ **3/3 smoke 通过**（AKShare 真实联网验证）。
-  - 剩余动作：提交推送分支（`feat: establish phase 1 data layer`）、生成安全审查 ZIP（`D:\A-Share-Review-Phase1-review.zip`）。
+- **无。** Phase 2A 实现完成，等待评审。
+- 待用户决策：Phase 1 与 Phase 2A 分支是否合入 main（本轮均未合并、未 force push）。
 
 ## Phase 1 完成清单（2026-08-19）
 
@@ -50,10 +62,10 @@
 
 ## 下一步（等待用户确认后执行）
 
-1. **Phase 1 评审**：确认测试结果与安全审查 ZIP 后，由用户决定是否将 `feat/phase-1-data-layer` 合入 main。
-2. **Phase 2（后端 API）**：FastAPI 基础、行情/持仓接口、APScheduler 定时任务。
+1. **评审 Phase 1 与 Phase 2A**：确认测试与审查 ZIP 后，由用户决定分支合入 main 的时机。
+2. **Phase 2B（后端 API 扩展）**：真实行情接口（AKShare）、持仓/交易接口、APScheduler 定时任务（用户指示 Phase 2A 不开发）。
 3. 用户将在本地私有数据中录入真实持仓（私有数据通用格式见 docs/private-data-format.md；待录入清单见 data/private/README.md，该目录 gitignore、不入库）。
-4. 用户确认后更新本文件与 MASTER_PLAN.md 的 Phase 2 规划。
+4. 用户确认后更新本文件与 MASTER_PLAN.md 的对应规划。
 
 ## 已验证命令
 
@@ -64,9 +76,11 @@
 | 文件写入（UTF-8） | 全部成功，编码检查通过 |
 | `git check-ignore`（Phase 0 修正复查） | 私有数据/运行目录内容被忽略、.gitkeep 不被忽略，全部符合预期 |
 | 敏感信息搜索（Phase 0 修正） | 未发现非空密钥/密码/Token 内容 |
-| `.venv\Scripts\python -m pytest apps/api` | **64 passed, 0 failed**（1.58s，离线；smoke 默认排除） |
+| `.venv\Scripts\python -m pytest apps/api` | **64 passed, 0 failed**（Phase 1，1.58s，离线；smoke 默认排除） |
 | `.venv\Scripts\python -m pytest apps/api -m smoke` | **3 passed**（AKShare 真实联网验证通过） |
 | `alembic -c apps/api/alembic.ini upgrade head` | 成功，storage/db/ashare_review.db 建 10 表（9 业务表 + alembic_version） |
+| `.venv\Scripts\python -m pytest apps/api`（Phase 2A 后） | **73 passed, 0 failed**（64 原有 + 9 API 新增，1.25s，离线） |
+| `pip install -e "apps/api[akshare,dev]"`（Phase 2A 依赖） | ✅ fastapi 0.141.1 / uvicorn 0.52.4 / httpx 0.28.1（venv 内） |
 
 ## 环境要求
 

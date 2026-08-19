@@ -164,6 +164,7 @@ interface DataSourceAdapter {
 | --- | --- | --- |
 | Phase 0 | 项目规划与基础目录（本文档、AGENTS、交接制度、目录骨架） | ✅ 已完成（2026-08-19） |
 | Phase 1 | 数据层：SQLite schema、数据源适配层骨架（AKShare 优先）、数据质量测试 | ✅ 实现完成（2026-08-19，待评审；分支 feat/phase-1-data-layer） |
+| Phase 2A | FastAPI 最小骨架 + Fake 行情接口（/health、/api/v1/market/*） | ✅ 实现完成（2026-08-19；分支 feat/phase-2a-api-skeleton） |
 | Phase 2 | 后端 API：FastAPI 基础、行情/持仓接口、APScheduler 定时任务 | ⏳ 待启动 |
 | Phase 3 | 前端骨架：Vite + React + ECharts，行情看板 | ⏳ 待启动 |
 | Phase 4 | 模块功能逐个落地（复盘 / 持仓 / 做T / 跟踪 / 研判 / 回测） | ⏳ 待启动 |
@@ -219,3 +220,18 @@ interface DataSourceAdapter {
 - 普通测试全部离线：Fake 适配器 + 本地 fixture + 临时 SQLite（内存/临时文件）。
 - AKShare 联网测试标记 `smoke`，默认排除（`addopts = -m "not smoke"`）；网络失败不影响普通测试。
 - 覆盖：模型字段完整性、Decimal 精度、DB 初始化与迁移、正常写入、重复约束、空值、延迟、字段变化、双源一致/冲突（含阈值临界值）、manual_verified 优先、stale 判定、Fake 离线、AKShare fixture 映射。
+
+## 12. Phase 2A 设计（2026-08-19 登记）
+
+### 12.1 范围
+
+- FastAPI 最小骨架：`apps/api/src/ashare_review/api/`（app.py 提供 `create_app()` 与模块级 `app`）。
+- 接口：`GET /health`；`GET /api/v1/market/meta`；`GET /api/v1/market/quote`；`GET /api/v1/market/daily`。
+- 数据源固定为 `FakeDataSourceAdapter`：**当前只有 Fake 行情 API，没有接入真实行情**；不访问 AKShare/网络；不写数据库；不启动 APScheduler；不做前端/登录/LLM/做T/回测。
+- daily 校验：`start_date > end_date` → 422；区间 > 366 天 → 422。
+
+### 12.2 启动方式（不常驻运行，仅测试验证）
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn ashare_review.api.app:app --host 127.0.0.1 --port 8000
+```

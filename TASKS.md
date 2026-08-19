@@ -77,4 +77,20 @@
 
 **Phase 1 验收结论（待用户确认）：** 离线测试 64/64 通过，AKShare smoke 3/3 通过；数据库初始化与迁移验证通过；隐私检查通过。
 
-## Phase 2+（规划中，待 Phase 1 评审后启动）
+## Phase 2A：FastAPI 最小骨架 + Fake 行情接口（2026-08-19，实现完成，分支 feat/phase-2a-api-skeleton）
+
+| 任务 | 状态 | 验收结果 |
+| --- | --- | --- |
+| 依赖：pyproject 增加 fastapi/uvicorn，dev 增加 httpx | ✅ 已完成 | venv 安装成功（fastapi 0.141.1 / uvicorn 0.52.4 / httpx 0.28.1） |
+| api 包结构（app.py + routes/health、market） | ✅ 已完成 | `create_app()` + 模块级 `app` |
+| GET /health | ✅ 已完成 | 200 + 固定字段 status/project/phase |
+| GET /api/v1/market/meta | ✅ 已完成 | 返回 FakeDataSourceAdapter.meta()，id=fake，明确合成数据 |
+| GET /api/v1/market/quote | ✅ 已完成 | Fake fetch_quote；Pydantic 结构化；source=fake |
+| GET /api/v1/market/daily | ✅ 已完成 | Fake fetch_daily_history；倒置日期 422；>366 天 422 |
+| API 离线测试（9 项） | ✅ 已完成 | health/meta/quote/daily/倒置/超区间/确定性/缺参/366 边界 |
+| 完整测试回归 | ✅ 已完成 | **73 passed, 0 failed**（64 原有 + 9 新增；smoke 默认跳过） |
+| 不启动常驻服务、不访问网络、不写数据库 | ✅ 已完成 | 仅测试验证（TestClient） |
+
+**Phase 2A 结论：✅ 通过。** 当前只有 Fake 行情 API；没有接入真实行情；没有启动 APScheduler；没有进入前端开发；未合并 main、未 force push。
+
+## Phase 2B+（规划中，待评审后启动）

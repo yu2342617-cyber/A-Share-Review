@@ -3,6 +3,23 @@
 > 只记录实际发生的变更（不是计划）。格式：日期 | 变更 | 涉及文件/范围。
 > 最后更新：2026-08-19
 
+## 2026-08-19 — Phase 2A：FastAPI 最小骨架 + Fake 行情接口（分支 feat/phase-2a-api-skeleton，未合并）
+
+### 新增
+- `apps/api/src/ashare_review/api/`：`__init__.py`、`app.py`（create_app + 模块级 app）、`routes/__init__.py`、`routes/health.py`、`routes/market.py`
+- 接口：`GET /health`、`GET /api/v1/market/meta`、`GET /api/v1/market/quote`、`GET /api/v1/market/daily`（倒置日期 422、>366 天 422）
+- 测试：`apps/api/tests/test_api.py`（9 项离线测试）
+
+### 变更
+- `apps/api/pyproject.toml`：dependencies 增加 fastapi/uvicorn；dev extra 增加 httpx
+- MASTER_PLAN.md §12（Phase 2A 设计）；PROJECT_STATE.md、TASKS.md、CHANGELOG.md（本文件）
+
+### 测试
+- 离线：**73 passed, 0 failed**（64 原有 + 9 API 新增）；smoke 默认跳过
+
+### 说明
+- 当前只有 Fake 行情 API，**没有接入真实行情**；未启动 APScheduler；未进入前端开发；未合并 main、未 force push。
+
 ## 2026-08-19 — Phase 1：数据层（分支 feat/phase-1-data-layer，未合并）
 
 ### 新增
