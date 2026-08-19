@@ -3,6 +3,18 @@
 > 只记录实际发生的变更（不是计划）。格式：日期 | 变更 | 涉及文件/范围。
 > 最后更新：2026-08-19
 
+## 2026-08-19 — GitHub 首次推送完成（可见性待修正为 Private）
+
+### 变更
+- 用户手动创建仓库 https://github.com/yu2342617-cyber/A-Share-Review
+- 添加 origin（HTTPS）并推送成功：`git push -u origin main`；远程默认分支 main；远程 main = `d35d122`（含两个 commit：`9ca8648` 初始化、`d35d122` 交接文档）
+- 环境处理：本机 schannel TLS 故障导致直连失败，仓库级配置 `http.sslBackend=openssl` + `http(s).proxy=http://127.0.0.1:7890`（--local）后推送成功
+- 已推送内容隐私核对 PASS（无 .env、无真实持仓、私有目录仅 .gitkeep、无密钥）
+- ⚠️ 可见性复核：仓库当前为 **Public**，需用户在 GitHub 网页改为 Private（暂未修正）
+
+### 说明
+- 未进入 Phase 1，未安装项目依赖，未修改全局 Git 配置，未使用 gh。
+
 ## 2026-08-19 — Git 首次提交完成（GitHub 推送阻塞于 gh CLI 缺失）
 
 ### 变更

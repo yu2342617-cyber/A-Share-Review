@@ -47,10 +47,14 @@
 | git add . 与暂存区核对 | ✅ 已完成 | 31 文件暂存，PASS 无私有/敏感文件 |
 | git commit | ✅ 已完成 | `9ca8648 chore: initialize A-Share-Review phase 0`（31 文件，828 行） |
 | git branch -M main | ✅ 已完成 | 当前分支 main |
-| gh CLI 检查 | ❌ 阻塞 | `gh` 未安装；按规则不擅自安装 |
-| gh 认证 / 建仓 / 推送 | ⏳ 待办 | 用户安装 gh 或手动创建 Private 仓库后继续 |
+| gh CLI 检查 | ❌ 阻塞（改用方案A） | `gh` 未安装；用户改为手动建仓，走方案A推送 |
+| 添加 origin 并推送 | ✅ 已完成 | origin=https://github.com/yu2342617-cyber/A-Share-Review.git；`git push -u origin main` 成功（GCM 授权后） |
+| 推送后复核（远程 main、内容一致性） | ✅ 已完成 | 远程默认分支 main；远程 main = d35d122 = 本地 HEAD；已推送内容隐私核对 PASS |
+| 仓库可见性为 Private | ❌ 待用户修正 | **当前为 Public**（未认证 ls-remote 可读）；需用户在 GitHub 网页改为 Private 后复验 |
 
-**阻塞说明**：解除方式——① 用户安装 gh CLI（`winget install GitHub.cli` 等）后继续；② 用户手动创建空的 GitHub Private 仓库并提供 HTTPS 地址，我添加 origin 后 `git push -u origin main`。
+**阻塞说明**：
+- 环境注记：本机 schannel TLS 栈故障（git/.NET/curl 直连 GitHub 失败）；仓库级已配置 `http.sslBackend=openssl` + `http(s).proxy=http://127.0.0.1:7890`（--local）。
+- 可见性修正：GitHub 网页 → 仓库 Settings → General → Danger Zone → Change repository visibility → Make private。
 
 ## Phase 1+（规划中，待用户确认后启动）
 

@@ -1,49 +1,52 @@
 # HANDOFF.md — 交接说明
 
 > 每轮工作结束必须更新：修改文件、运行命令、测试结果、已知问题、环境要求、下一位 AI 的明确起点。
-> 最后更新：2026-08-19（Git 首次提交完成；GitHub 推送阻塞于 gh CLI 缺失）
+> 最后更新：2026-08-19（GitHub 首次推送完成；仓库可见性待修正为 Private）
 
 ## 本轮修改的文件
 
-**修改（3 个，状态记录）**
-- `PROJECT_STATE.md` — 进行中/下一步更新为"commit 已完成，推送阻塞于 gh 缺失"
-- `TASKS.md` — Git/GitHub 任务表更新（commit ✅、branch ✅、gh ❌ 阻塞）
-- `CHANGELOG.md` — 追加本轮记录
+**状态记录（3 个）**
+- `PROJECT_STATE.md` — 进行中/下一步更新（推送完成、可见性待修正、环境注记）
+- `TASKS.md` — Git/GitHub 任务表更新（origin/推送 ✅、可见性 ❌）
+- `CHANGELOG.md` — 追加本轮推送记录
 
-**无项目内容文件变更**（本轮只做 Git 操作）。
+**无项目内容变更。**
 
 ## 运行过的命令与结果
 
 | 命令 | 结果 |
 | --- | --- |
-| `git config --local user.name "uwang"` / `user.email "yu2342617@gmail.com"` | 成功（用户提供，仅仓库级） |
-| `git add .` + 暂存区核对 | 31 文件暂存，PASS 无私有/敏感文件 |
-| `git commit -m "chore: initialize A-Share-Review phase 0"` | ✅ `9ca8648`（root-commit，31 文件，828 行） |
-| `git branch -M main` | ✅ 当前分支 main |
-| `git status` | ✅ working tree clean |
-| `gh --version` | ❌ **gh 不存在**（未擅自安装） |
+| `git remote add origin https://github.com/yu2342617-cyber/A-Share-Review.git` | 成功 |
+| 网络诊断（schannel / 代理 / DNS / IPv6 / curl） | 定位根因：本机 schannel TLS 故障；系统代理 127.0.0.1:7890 可用 |
+| `git config --local http.sslBackend openssl` + `http(s).proxy=http://127.0.0.1:7890` | 成功（仓库级），此后 GitHub 可达 |
+| `git add` + `git commit -m "docs: record phase 0 git setup status in handoff docs"` | ✅ `d35d122`（补记上一轮 gh 阻塞时的文档变更） |
+| `git push -u origin main`（GCM 浏览器授权后） | ✅ 成功，`main -> main`，设置跟踪 origin/main |
+| `git ls-remote --symref origin HEAD` | 远程默认分支 `main`，HEAD = `d35d122`，与本地一致 |
+| 未认证 `git ls-remote`（credential.helper= 禁用） | ⚠️ **成功** → 仓库当前为 **Public**（要求 Private） |
+| `git ls-tree -r HEAD` 隐私核对 | ✅ PASS（无 .env/真实持仓/密钥；私有目录仅 .gitkeep） |
 
 ## 测试结果
 
-- 未安装依赖、未运行代码；静态核对全部通过（暂存区隐私核对、提交后工作树干净）。
+- 未安装依赖、未运行代码；静态核对通过（已推送内容隐私、远程分支一致性、可见性）。
 
 ## 已知问题
 
-1. **gh CLI 未安装**——阻塞 GitHub 认证、建仓与推送。规则：不擅自安装。解除方式：① 用户自行安装 gh（如 `winget install GitHub.cli`）；② 或用户在 GitHub 网页手动创建空的 **Private** 仓库，把 HTTPS 地址提供给我（或自行执行 `git remote add origin <url>` + `git push -u origin main`）。
-2. 本地 global 配置为 `yuwang <953769812@example.com>`（用户既有配置，本轮只读未改）；本仓库 commit 使用用户提供的 `uwang <yu2342617@gmail.com>`（--local）。
-3. data/private 内容不入库（有意设计，仅 .gitkeep 已提交）；data/imports/* 忽略导入区；真实持仓尚未录入；密钥字段均为空占位符。
+1. **仓库可见性为 Public（要求 Private）**：未认证即可读取。用户在 GitHub 网页修正：仓库 Settings → General → Danger Zone → Change repository visibility → Make private。已推送内容无敏感数据，但仍需修正。
+2. **本机 schannel TLS 栈故障**（git/.NET/curl 直连 GitHub 均报 TLS 错误）；本仓库已配置 `http.sslBackend=openssl` 与 `http(s).proxy=http://127.0.0.1:7890`（--local）解决。注意：此配置仅本仓库生效；新克隆/新机器需同样处理。
+3. `gh` CLI 未安装（本轮以手动建仓方案完成，未使用 gh）。
+4. GCM 凭据已在本机生成（用户浏览器授权），后续推送无需再次授权；不得读取/导出该凭据（含 Token）。
+5. data/private 内容不入库（仅 .gitkeep 已提交）；真实持仓尚未录入；密钥字段均为空占位符。
 
 ## 环境要求
 
-- 本机：Windows（PowerShell），未安装 gh CLI；已安装 TradingView 与通达信（无访问权限假设）。
+- 本机：Windows（PowerShell）；Git 2.51.0.windows.1；`gh` 未安装；schannel 故障（需 openssl 后端 + 系统代理）。
+- 系统代理：127.0.0.1:7890（浏览器同路径，Clash 系）。
+- GitHub：用户已登录浏览器；仓库 https://github.com/yu2342617-cyber/A-Share-Review（当前 Public）。
 - 项目零依赖；Phase 1 起需要 Python 3.11+、Node.js。
-- GitHub：用户已在浏览器登录 GitHub 账号，待 gh 认证或手动建仓。
 
 ## 下一位 AI 的明确起点
 
 1. **先阅读**：AGENTS.md → MASTER_PLAN.md → PROJECT_STATE.md → DECISIONS.md → TASKS.md → HANDOFF.md（本文件）。
-2. **先解除 gh 阻塞**（用户安装 gh 或提供手动创建的 Private 仓库 HTTPS 地址），再继续：
-   - 若用户提供仓库地址：`git remote add origin <url>` → `git remote -v` 核对 → `git push -u origin main`（origin 已存在且地址不一致时停止报告，不得覆盖）。
-   - 若用户安装 gh：`gh auth status`（未认证则 `gh auth login --web --git-protocol https`，等待用户在浏览器完成授权；**不得询问、读取、保存或输出密码、Token、验证码与浏览器 Cookie**）→ 确认认证 → `gh repo view A-Share-Review` 检查是否已存在 → 不存在则 `gh repo create A-Share-Review --private --source=. --remote=origin --push`；已存在则确认 Private、核对 remote 后推送。
-3. 推送后复核：仓库可见性 Private、默认分支 main、.env 未提交、data/private 仅 .gitkeep、无真实持仓/券商文件/数据库/缓存/日志/非空密钥；输出仓库 HTTPS 地址、commit hash、`git remote -v`、`git status`、隐私检查结论。
-4. **不得进入 Phase 1**、不得安装项目依赖、不得修改全局 Git 配置。
+2. **先请用户将仓库改为 Private**，然后用未认证 `git ls-remote`（credential.helper= 禁用）复验应为失败（Private 特征）。
+3. Phase 0 Git/GitHub 环节完成后，等待用户确认进入 Phase 1（SQLite schema + AKShare 适配层 + tests/data/ 质量测试）。
+4. 任何 GitHub/git 操作注意：本机须用 openssl 后端与代理（仓库级配置已就绪）；不读取/导出 GCM 凭据；不修改全局 Git 配置；不安装项目依赖；**不得进入 Phase 1** 除非用户确认。

@@ -33,14 +33,14 @@
 
 ## 进行中
 
-- **Git 首次提交已完成；GitHub 推送阻塞于 gh CLI 缺失。**
-  - 已完成：仓库级 Git 身份已设置（用户提供：uwang / yu2342617@gmail.com，仅 --local）；首次 commit `9ca8648` 已创建（31 文件，828 行）；分支已改名为 `main`。
-  - 阻塞原因：`gh`（GitHub CLI）未安装；按规则不得擅自安装。
-  - 解除方式（二选一）：① 用户自行安装 gh CLI 后继续 `gh auth login --web` → 建仓推送；② 用户在 GitHub 网页手动创建空的 Private 仓库后，提供仓库 HTTPS 地址，由我添加 origin 并 `git push -u origin main`（或用户自行执行）。
+- **Git 首次推送已完成；仓库可见性待用户修正。**
+  - 已完成：推送成功（`origin/main` = `d35d122`）；远程默认分支为 `main`；已推送内容隐私核对通过。
+  - 阻塞/待办：经未认证访问复测，仓库当前为 **Public**（与要求的 Private 不符）。需用户登录 GitHub 网页将其改为 Private（Settings → General → Danger Zone → Change repository visibility → Make private），改后我再复验。
+  - 环境注记：本机 schannel TLS 栈故障导致 git/.NET/curl 直连 GitHub 失败；已在本仓库设置 `http.sslBackend=openssl` 与 `http(s).proxy=http://127.0.0.1:7890`（仓库级 --local）后推送成功。
 
 ## 下一步（等待用户确认后执行）
 
-1. **解除推送阻塞**：用户安装 gh CLI（或手动创建 GitHub Private 仓库并提供 HTTPS 地址）后，继续认证、建仓/关联 origin 与推送。
+1. **修正仓库可见性为 Private**（用户网页操作），随后我复验；之后 Phase 0 的 Git/GitHub 环节即全部完成。
 2. **Phase 1（数据层）**：SQLite schema 设计、数据源适配层骨架（AKShare 优先）、数据质量测试（tests/data/）。
 3. 用户将在本地私有数据中录入真实持仓（私有数据通用格式见 docs/private-data-format.md；待录入清单见 data/private/README.md，该目录 gitignore、不入库）。
 4. 用户确认后更新本文件与 MASTER_PLAN.md 的 Phase 1 规划。
